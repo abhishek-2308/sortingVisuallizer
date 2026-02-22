@@ -29,9 +29,21 @@ const LEGEND = [
     { cls: 'bar-pivot', label: 'Pivot' },
 ];
 
+/* ── Box colour map ── */
+const BOX_COLOUR = {
+    'bar-default': { bg: 'rgba(79,70,229,0.12)', border: 'rgba(99,102,241,0.35)', text: '#a5b4fc', glow: '' },
+    'bar-compare': { bg: 'rgba(220,38,38,0.18)', border: '#ef4444', text: '#fca5a5', glow: '0 0 12px #ef444466' },
+    'bar-swap': { bg: 'rgba(217,119,6,0.2)', border: '#f59e0b', text: '#fcd34d', glow: '0 0 12px #f59e0b66' },
+    'bar-sorted': { bg: 'rgba(5,150,105,0.18)', border: '#10b981', text: '#6ee7b7', glow: '0 0 10px #10b98155' },
+    'bar-pivot': { bg: 'rgba(124,58,237,0.22)', border: '#a855f7', text: '#d8b4fe', glow: '0 0 12px #a855f766' },
+};
+
 export default function VisualizationPage({ selectedAlgo, initialArray, speed, onBack, onDone }) {
     const info = ALGO_INFO[selectedAlgo];
     const meta = ALGO_META[selectedAlgo];
+
+    /* ── View mode: 'bars' | 'array' ── */
+    const [viewMode, setViewMode] = useState('bars');
 
     /* ── Animation state ── */
     const [displayArray, setDisplayArray] = useState([...initialArray]);
@@ -54,7 +66,6 @@ export default function VisualizationPage({ selectedAlgo, initialArray, speed, o
         clearInterval(timerRef.current);
     }, []);
 
-    /* ── delay from speed (1–100) ── */
     const getDelay = useCallback(() => Math.max(1, Math.round(600 - speed * 5.99)), [speed]);
 
     /* ── Reset ── */
@@ -136,9 +147,7 @@ export default function VisualizationPage({ selectedAlgo, initialArray, speed, o
 
         clearInterval(timerRef.current);
         setIsSorting(false);
-        if (!abortRef.current) {
-            setIsSorted(true);
-        }
+        if (!abortRef.current) setIsSorted(true);
     }
 
     function colourOf(i) {
@@ -197,11 +206,47 @@ export default function VisualizationPage({ selectedAlgo, initialArray, speed, o
                     </div>
                 </div>
 
-                {/* ── Live stats ── */}
+                {/* ── Live stats + View Toggle + Legend ── */}
                 <div className="flex flex-wrap gap-3 items-center">
                     <StatPill emoji="👁️" label="Comparisons" value={comparisons.toLocaleString()} colour="text-red-400" bg="bg-red-500/10" />
                     <StatPill emoji="🔄" label="Swaps" value={swaps.toLocaleString()} colour="text-amber-400" bg="bg-amber-500/10" />
                     <StatPill emoji="📊" label="Size" value={displayArray.length} colour="text-indigo-400" bg="bg-indigo-500/10" />
+
+                    {/* ── View mode toggle ── */}
+                    <div className="flex items-center glass rounded-xl p-1 gap-1">
+                        <button
+                            onClick={() => setViewMode('bars')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200
+                                ${viewMode === 'bars'
+                                    ? 'bg-indigo-500 text-white shadow-md'
+                                    : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            {/* Bar chart icon */}
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="2" y="10" width="4" height="12" rx="1" />
+                                <rect x="8" y="6" width="4" height="16" rx="1" />
+                                <rect x="14" y="2" width="4" height="20" rx="1" />
+                                <rect x="20" y="8" width="4" height="14" rx="1" />
+                            </svg>
+                            Bars
+                        </button>
+                        <button
+                            onClick={() => setViewMode('array')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200
+                                ${viewMode === 'array'
+                                    ? 'bg-indigo-500 text-white shadow-md'
+                                    : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            {/* Grid / array icon */}
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="3" width="7" height="7" rx="1" />
+                                <rect x="14" y="3" width="7" height="7" rx="1" />
+                                <rect x="3" y="14" width="7" height="7" rx="1" />
+                                <rect x="14" y="14" width="7" height="7" rx="1" />
+                            </svg>
+                            Array
+                        </button>
+                    </div>
 
                     {/* Legend */}
                     <div className="ml-auto flex flex-wrap gap-3">
@@ -214,45 +259,56 @@ export default function VisualizationPage({ selectedAlgo, initialArray, speed, o
                     </div>
                 </div>
 
-                {/* ── Bar Chart ── */}
-                <div className="glass rounded-2xl p-4 sm:p-6 relative overflow-hidden">
-                    {/* Grid lines */}
-                    <div className="absolute inset-0 opacity-[0.04]" style={{
-                        backgroundImage: 'repeating-linear-gradient(0deg, #ffffff 0px, #ffffff 1px, transparent 1px, transparent 25%)',
-                        backgroundSize: '100% 25%',
-                    }} />
+                {/* ── Visualization Panel: Bars OR Array ── */}
+                {viewMode === 'bars' ? (
+                    /* ── Bar Chart View ── */
+                    <div className="glass rounded-2xl p-4 sm:p-6 relative overflow-hidden">
+                        {/* Grid lines */}
+                        <div className="absolute inset-0 opacity-[0.04]" style={{
+                            backgroundImage: 'repeating-linear-gradient(0deg, #ffffff 0px, #ffffff 1px, transparent 1px, transparent 25%)',
+                            backgroundSize: '100% 25%',
+                        }} />
 
-                    {/* Sorted badge */}
-                    {isSorted && (
-                        <div className="absolute top-4 right-4 z-10 glass-strong rounded-xl px-4 py-2 flex items-center gap-2 animate-fade-in"
-                            style={{ borderColor: `${meta.color}44`, border: `1px solid ${meta.color}44` }}>
-                            <span className="text-emerald-400 text-lg">✅</span>
-                            <span className="text-emerald-400 text-sm font-bold">Sorted!</span>
+                        {/* Sorted badge */}
+                        {isSorted && (
+                            <div className="absolute top-4 right-4 z-10 glass-strong rounded-xl px-4 py-2 flex items-center gap-2 animate-fade-in"
+                                style={{ border: `1px solid ${meta.color}44` }}>
+                                <span className="text-emerald-400 text-lg">✅</span>
+                                <span className="text-emerald-400 text-sm font-bold">Sorted!</span>
+                            </div>
+                        )}
+
+                        <div
+                            className="flex items-end justify-center gap-px relative z-10"
+                            style={{ height: 'clamp(260px, 42vw, 440px)', width: '100%' }}
+                        >
+                            {displayArray.map((val, i) => (
+                                <Bar
+                                    key={i}
+                                    height={(val / maxVal) * 100}
+                                    colourClass={colourOf(i)}
+                                    value={val}
+                                    showValue={showVals}
+                                    width={`${Math.max(0.3, 96 / displayArray.length)}%`}
+                                />
+                            ))}
                         </div>
-                    )}
-
-                    <div
-                        className="flex items-end justify-center gap-px relative z-10"
-                        style={{ height: 'clamp(260px, 42vw, 440px)', width: '100%' }}
-                    >
-                        {displayArray.map((val, i) => (
-                            <Bar
-                                key={i}
-                                height={(val / maxVal) * 100}
-                                colourClass={colourOf(i)}
-                                value={val}
-                                showValue={showVals}
-                                width={`${Math.max(0.3, 96 / displayArray.length)}%`}
-                            />
-                        ))}
                     </div>
-                </div>
+                ) : (
+                    /* ── Array Box View ── */
+                    <ArrayBoxView
+                        displayArray={displayArray}
+                        colourOf={colourOf}
+                        isSorted={isSorted}
+                        metaColor={meta.color}
+                    />
+                )}
 
                 {/* ── Control Buttons ── */}
                 <div className="flex flex-wrap gap-3">
                     <button
                         className="btn-primary px-6 py-3 flex items-center gap-2"
-                        style={{ background: `linear-gradient(135deg, #059669, #10b981)` }}
+                        style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}
                         onClick={handleSort}
                         disabled={isSorting || isSorted}
                     >
@@ -273,7 +329,6 @@ export default function VisualizationPage({ selectedAlgo, initialArray, speed, o
                         Reset
                     </button>
 
-                    {/* View Results — only after sorted */}
                     {isSorted && (
                         <button
                             className="btn-primary ml-auto px-6 py-3 flex items-center gap-2 animate-slide-up"
@@ -287,6 +342,104 @@ export default function VisualizationPage({ selectedAlgo, initialArray, speed, o
                         </button>
                     )}
                 </div>
+            </div>
+        </div>
+    );
+}
+
+/* ─────────────────────────────────────────────── */
+/* ── Array Box View Component                  ── */
+/* ─────────────────────────────────────────────── */
+function ArrayBoxView({ displayArray, colourOf, isSorted, metaColor }) {
+    const n = displayArray.length;
+
+    /* Choose a nice box size based on array length */
+    const boxSize = n <= 20 ? 56 : n <= 40 ? 44 : n <= 70 ? 36 : n <= 100 ? 28 : 22;
+    const fontSize = boxSize >= 44 ? '13px' : boxSize >= 36 ? '11px' : '9px';
+    const idxSize = boxSize >= 44 ? '10px' : '8px';
+
+    return (
+        <div className="glass rounded-2xl p-5 sm:p-7 relative overflow-hidden">
+            {/* Sorted badge */}
+            {isSorted && (
+                <div className="absolute top-4 right-4 z-10 glass-strong rounded-xl px-4 py-2 flex items-center gap-2 animate-fade-in"
+                    style={{ border: `1px solid ${metaColor}44` }}>
+                    <span className="text-emerald-400 text-lg">✅</span>
+                    <span className="text-emerald-400 text-sm font-bold">Sorted!</span>
+                </div>
+            )}
+
+            {/* Label */}
+            <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-4 font-semibold select-none">
+                Array — {n} elements
+            </p>
+
+            {/* Boxes */}
+            <div
+                className="flex flex-wrap gap-1.5"
+                style={{ maxHeight: '340px', overflowY: 'auto' }}
+            >
+                {displayArray.map((val, i) => {
+                    const cls = colourOf(i);
+                    const style = BOX_COLOUR[cls] || BOX_COLOUR['bar-default'];
+
+                    return (
+                        <div
+                            key={i}
+                            className="relative flex flex-col items-center justify-center rounded-lg select-none"
+                            style={{
+                                width: boxSize,
+                                height: boxSize,
+                                background: style.bg,
+                                border: `1.5px solid ${style.border}`,
+                                boxShadow: style.glow || 'none',
+                                transition: 'background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease',
+                                transform: (cls === 'bar-compare' || cls === 'bar-swap' || cls === 'bar-pivot')
+                                    ? 'scale(1.12) translateY(-2px)'
+                                    : 'scale(1)',
+                            }}
+                        >
+                            {/* Value */}
+                            <span
+                                className="font-bold font-mono leading-none"
+                                style={{ fontSize, color: style.text }}
+                            >
+                                {val}
+                            </span>
+                            {/* Index label */}
+                            {boxSize >= 36 && (
+                                <span
+                                    className="absolute bottom-[3px] left-0 right-0 text-center leading-none"
+                                    style={{ fontSize: idxSize, color: 'rgba(148,163,184,0.4)' }}
+                                >
+                                    {i}
+                                </span>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Colour key row at bottom */}
+            <div className="flex flex-wrap gap-4 mt-5 pt-4 border-t border-white/[0.05]">
+                {Object.entries(BOX_COLOUR).map(([cls, style]) => {
+                    const label = {
+                        'bar-default': 'Unsorted',
+                        'bar-compare': 'Comparing',
+                        'bar-swap': 'Swapping',
+                        'bar-sorted': 'Sorted',
+                        'bar-pivot': 'Pivot',
+                    }[cls];
+                    return (
+                        <div key={cls} className="flex items-center gap-1.5">
+                            <div
+                                className="w-5 h-5 rounded"
+                                style={{ background: style.bg, border: `1.5px solid ${style.border}` }}
+                            />
+                            <span className="text-[10px] text-slate-500">{label}</span>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
