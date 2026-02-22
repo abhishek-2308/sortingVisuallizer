@@ -5,6 +5,7 @@ import AlgoSelectPage from './pages/AlgoSelectPage';
 import InputPage from './pages/InputPage';
 import VisualizationPage from './pages/VisualizationPage';
 import ResultsPage from './pages/ResultsPage';
+import CodePage from './pages/CodePage';
 
 /**
  * 5-page flow:
@@ -14,7 +15,7 @@ import ResultsPage from './pages/ResultsPage';
  *                    ↑___↓                  (Back / Change Algo)
  */
 export default function App() {
-  // 'splash' | 'select' | 'input' | 'visualize' | 'results'
+  // 'splash' | 'select' | 'input' | 'visualize' | 'results' | 'code'
   const [page, setPage] = useState('splash');
   const [selectedAlgo, setSelectedAlgo] = useState(null);
   const [configuredArr, setConfiguredArr] = useState([]);
@@ -34,6 +35,8 @@ export default function App() {
   const handleBackToInput = () => goTo('input');
   const handleBackToSelect = () => goTo('select');
   const handleRestart = () => goTo('select');
+  const handleViewCode = () => goTo('code');
+  const handleBackToViz = () => goTo('visualize');
 
   return (
     <>
@@ -65,6 +68,14 @@ export default function App() {
                 speed={configSpeed}
                 onBack={handleBackToInput}
                 onDone={handleSortDone}
+                onViewCode={handleViewCode}
+              />
+            )}
+
+            {page === 'code' && selectedAlgo && (
+              <CodePage
+                selectedAlgo={selectedAlgo}
+                onBack={handleBackToViz}
               />
             )}
 

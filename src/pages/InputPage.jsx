@@ -19,6 +19,19 @@ const ALGO_META = {
     quick: { name: 'Quick Sort', emoji: '🚀', color: '#dc2626' },
     heap: { name: 'Heap Sort', emoji: '🏔️', color: '#db2777' },
     radix: { name: 'Radix Sort', emoji: '🔢', color: '#65a30d' },
+    counting: { name: 'Counting Sort', emoji: '🔢', color: '#0d9488' },
+    bucket: { name: 'Bucket Sort', emoji: '🪣', color: '#d97706' },
+    shell: { name: 'Shell Sort', emoji: '🐚', color: '#0284c7' },
+    tim: { name: 'Tim Sort', emoji: '⏱️', color: '#4f46e5' },
+    tree: { name: 'Tree Sort', emoji: '🌳', color: '#16a34a' },
+    comb: { name: 'Comb Sort', emoji: '🔀', color: '#a21caf' },
+    cycle: { name: 'Cycle Sort', emoji: '🔁', color: '#c2410c' },
+    bitonic: { name: 'Bitonic Sort', emoji: '⚡', color: '#7c3aed' },
+    pancake: { name: 'Pancake Sort', emoji: '🥞', color: '#ca8a04' },
+    strand: { name: 'Strand Sort', emoji: '🧵', color: '#0e7490' },
+    pigeonhole: { name: 'Pigeonhole Sort', emoji: '🕊️', color: '#e11d48' },
+    intro: { name: 'Introsort', emoji: '🧠', color: '#b91c1c' },
+    block: { name: 'Block Sort', emoji: '🧱', color: '#475569' },
 };
 
 export default function InputPage({ selectedAlgo, onBack, onProceed }) {

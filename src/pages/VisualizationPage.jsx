@@ -9,6 +9,19 @@ const ALGO_INFO = {
     quick: { name: 'Quick Sort', time: 'O(n log n)', best: 'O(n log n)', space: 'O(log n)', stable: false },
     heap: { name: 'Heap Sort', time: 'O(n log n)', best: 'O(n log n)', space: 'O(1)', stable: false },
     radix: { name: 'Radix Sort', time: 'O(nk)', best: 'O(nk)', space: 'O(n+k)', stable: true },
+    counting: { name: 'Counting Sort', time: 'O(n+k)', best: 'O(n+k)', space: 'O(k)', stable: true },
+    bucket: { name: 'Bucket Sort', time: 'O(n²)', best: 'O(n+k)', space: 'O(n+k)', stable: true },
+    shell: { name: 'Shell Sort', time: 'O(n²)', best: 'O(n log n)', space: 'O(1)', stable: false },
+    tim: { name: 'Tim Sort', time: 'O(n log n)', best: 'O(n)', space: 'O(n)', stable: true },
+    tree: { name: 'Tree Sort', time: 'O(n²)', best: 'O(n log n)', space: 'O(n)', stable: false },
+    comb: { name: 'Comb Sort', time: 'O(n²)', best: 'O(n log n)', space: 'O(1)', stable: false },
+    cycle: { name: 'Cycle Sort', time: 'O(n²)', best: 'O(n²)', space: 'O(1)', stable: false },
+    bitonic: { name: 'Bitonic Sort', time: 'O(n log² n)', best: 'O(n log² n)', space: 'O(log²n)', stable: false },
+    pancake: { name: 'Pancake Sort', time: 'O(n²)', best: 'O(n)', space: 'O(1)', stable: false },
+    strand: { name: 'Strand Sort', time: 'O(n²)', best: 'O(n)', space: 'O(n)', stable: true },
+    pigeonhole: { name: 'Pigeonhole Sort', time: 'O(n+k)', best: 'O(n+k)', space: 'O(k)', stable: true },
+    intro: { name: 'Introsort', time: 'O(n log n)', best: 'O(n log n)', space: 'O(log n)', stable: false },
+    block: { name: 'Block Sort', time: 'O(n log n)', best: 'O(n)', space: 'O(1)', stable: true },
 };
 
 const ALGO_META = {
@@ -19,6 +32,19 @@ const ALGO_META = {
     quick: { emoji: '🚀', color: '#dc2626' },
     heap: { emoji: '🏔️', color: '#db2777' },
     radix: { emoji: '🔢', color: '#65a30d' },
+    counting: { emoji: '🔢', color: '#0d9488' },
+    bucket: { emoji: '🪣', color: '#d97706' },
+    shell: { emoji: '🐚', color: '#0284c7' },
+    tim: { emoji: '⏱️', color: '#4f46e5' },
+    tree: { emoji: '🌳', color: '#16a34a' },
+    comb: { emoji: '🔀', color: '#a21caf' },
+    cycle: { emoji: '🔁', color: '#c2410c' },
+    bitonic: { emoji: '⚡', color: '#7c3aed' },
+    pancake: { emoji: '🥞', color: '#ca8a04' },
+    strand: { emoji: '🧵', color: '#0e7490' },
+    pigeonhole: { emoji: '🕊️', color: '#e11d48' },
+    intro: { emoji: '🧠', color: '#b91c1c' },
+    block: { emoji: '🧱', color: '#475569' },
 };
 
 const LEGEND = [
@@ -38,7 +64,7 @@ const BOX_COLOUR = {
     'bar-pivot': { bg: 'rgba(124,58,237,0.22)', border: '#a855f7', text: '#d8b4fe', glow: '0 0 12px #a855f766' },
 };
 
-export default function VisualizationPage({ selectedAlgo, initialArray, speed, onBack, onDone }) {
+export default function VisualizationPage({ selectedAlgo, initialArray, speed, onBack, onDone, onViewCode }) {
     const info = ALGO_INFO[selectedAlgo];
     const meta = ALGO_META[selectedAlgo];
 
@@ -97,6 +123,19 @@ export default function VisualizationPage({ selectedAlgo, initialArray, speed, o
                 case 'quick': sortFn = (await import('../algorithms/quickSort')).quickSort; break;
                 case 'heap': sortFn = (await import('../algorithms/heapSort')).heapSort; break;
                 case 'radix': sortFn = (await import('../algorithms/radixSort')).radixSort; break;
+                case 'counting': sortFn = (await import('../algorithms/countingSort')).countingSort; break;
+                case 'bucket': sortFn = (await import('../algorithms/bucketSort')).bucketSort; break;
+                case 'shell': sortFn = (await import('../algorithms/shellSort')).shellSort; break;
+                case 'tim': sortFn = (await import('../algorithms/timSort')).timSort; break;
+                case 'tree': sortFn = (await import('../algorithms/treeSort')).treeSort; break;
+                case 'comb': sortFn = (await import('../algorithms/combSort')).combSort; break;
+                case 'cycle': sortFn = (await import('../algorithms/cycleSort')).cycleSort; break;
+                case 'bitonic': sortFn = (await import('../algorithms/bitonicSort')).bitonicSort; break;
+                case 'pancake': sortFn = (await import('../algorithms/pancakeSort')).pancakeSort; break;
+                case 'strand': sortFn = (await import('../algorithms/strandSort')).strandSort; break;
+                case 'pigeonhole': sortFn = (await import('../algorithms/pigeonholeSort')).pigeonholeSort; break;
+                case 'intro': sortFn = (await import('../algorithms/introSort')).introSort; break;
+                case 'block': sortFn = (await import('../algorithms/blockSort')).blockSort; break;
                 default: return;
             }
         } catch { return; }
@@ -177,12 +216,26 @@ export default function VisualizationPage({ selectedAlgo, initialArray, speed, o
                         {isSorted && <span className="text-emerald-400 text-xl font-normal ml-3">✓ done!</span>}
                     </h1>
                 </div>
-                <button className="btn-algo flex items-center gap-2" onClick={onBack} disabled={isSorting}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M19 12H5M12 5l-7 7 7 7" />
-                    </svg>
-                    Back to Config
-                </button>
+                <div className="flex items-center gap-3 flex-wrap">
+                    <button className="btn-algo flex items-center gap-2" onClick={onBack} disabled={isSorting}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M19 12H5M12 5l-7 7 7 7" />
+                        </svg>
+                        Back to Config
+                    </button>
+                    <button
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-violet-500/40 bg-violet-500/10 text-violet-300 text-sm font-semibold hover:bg-violet-500/20 hover:border-violet-400/60 transition-all duration-200"
+                        onClick={onViewCode}
+                        disabled={isSorting}
+                        style={{ boxShadow: '0 0 16px #7c3aed22' }}
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
+                        </svg>
+                        View Code
+                    </button>
+                </div>
+
             </div>
 
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 space-y-5">
